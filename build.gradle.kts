@@ -4,9 +4,9 @@ plugins {
     id("org.springframework.boot") version Versions.SPRING_BOOT_VERSION
     id("io.spring.dependency-management") version Versions.SPRING_DEPENDENCY_MANAGEMENT
 
-    kotlin("jvm") version Versions.KOTLIN_VERSION
-    kotlin("kapt") version Versions.KOTLIN_VERSION
-    kotlin("plugin.spring") version Versions.KOTLIN_VERSION
+    kotlin("jvm") version Versions.KOTLIN
+    kotlin("kapt") version Versions.KOTLIN
+    kotlin("plugin.spring") version Versions.KOTLIN
 
     `java-library`
     `maven-publish`
@@ -24,6 +24,7 @@ dependencies {
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    compileOnly("javax.servlet:javax.servlet-api:4.0.1")
     annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.security:spring-security-core:${Versions.SPRING_SECURITY}")
@@ -41,6 +42,7 @@ dependencies {
     implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars:${Versions.GRAPHQL_DGS}")
     implementation("com.netflix.graphql.dgs:graphql-error-types:${Versions.GRAPHQL_DGS}")
 
+    implementation("joda-time:joda-time:2.10.14")
     kapt("jakarta.annotation:jakarta.annotation-api")
 
     // Kotlin

@@ -1,9 +1,7 @@
 package com.briolink.lib.common
 
-import com.briolink.lib.common.exception.BaseAccessDeniedException
-import com.briolink.lib.common.exception.BaseExistsException
-import com.briolink.lib.common.exception.BaseNotFoundException
 import com.briolink.lib.common.exception.ExceptionInterface
+import com.briolink.lib.common.util.BlLocaleMessage
 import com.netflix.graphql.dgs.exceptions.DefaultDataFetcherExceptionHandler
 import com.netflix.graphql.dgs.exceptions.DgsEntityNotFoundException
 import com.netflix.graphql.types.errors.ErrorType
@@ -15,7 +13,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.server.RequestPredicates.path
 import javax.validation.ConstraintViolationException
 
-open class BaseDataFetcherExceptionHandler(localeMessage: BaseLocaleMessage) : DataFetcherExceptionHandler {
+open class BaseDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataFetcherExceptionHandler {
     init {
         lm = localeMessage
     }
@@ -25,27 +23,16 @@ open class BaseDataFetcherExceptionHandler(localeMessage: BaseLocaleMessage) : D
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters): DataFetcherExceptionHandlerResult {
         val exception = handlerParameters.exception
         val path = handlerParameters.path
+        val location = handlerParameters.sourceLocation
 
         val error: TypedGraphQLError = when (exception) {
-            is BaseNotFoundException ->
-                TypedGraphQLError.newBuilder().errorType(ErrorType.NOT_FOUND)
-                    .message(lm.getMessage(exception.code))
-                    .path(path)
-                    .build()
-            is BaseAccessDeniedException -> TypedGraphQLError.newBuilder().errorType(ErrorType.NOT_FOUND)
-                .message(lm.getMessage(exception.code))
-                .path(path)
-                .build()
             is DgsEntityNotFoundException ->
                 TypedGraphQLError.newBuilder().errorType(ErrorType.NOT_FOUND)
                     .message(exception.message)
                     .path(path)
+                    .location(location)
                     .build()
-            is BaseExistsException ->
-                TypedGraphQLError.newBuilder().errorType(ErrorType.INTERNAL)
-                    .message(lm.getMessage(exception.code))
-                    .path(path)
-                    .build()
+
             is ExceptionInterface -> {
                 val errorType: ErrorType = when (exception.httpsStatus) {
                     HttpStatus.NOT_FOUND -> ErrorType.NOT_FOUND
@@ -58,9 +45,14 @@ open class BaseDataFetcherExceptionHandler(localeMessage: BaseLocaleMessage) : D
                     }
                 }
 
+                val message = lm.getMessage(exception.code).let {
+                    if (!exception.message.isNullOrBlank() && it == exception.code) lm.getMessage(exception.message!!) else it
+                }
+
                 TypedGraphQLError.newBuilder().errorType(errorType)
-                    .message(lm.getMessage(exception.code))
+                    .message(message)
                     .path(path)
+                    .location(location)
                     .build()
             }
             else ->
@@ -71,7 +63,7 @@ open class BaseDataFetcherExceptionHandler(localeMessage: BaseLocaleMessage) : D
     }
 
     companion object {
-        lateinit var lm: BaseLocaleMessage
+        lateinit var lm: BlLocaleMessage
 
         fun mapUserErrors(cve: ConstraintViolationException): List<Error> {
             val errors: MutableList<Error> = mutableListOf()
