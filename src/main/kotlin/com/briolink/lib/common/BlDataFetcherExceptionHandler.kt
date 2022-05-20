@@ -1,7 +1,6 @@
 package com.briolink.lib.common
 
-import com.briolink.lib.common.exception.ExceptionInterface
-import com.briolink.lib.common.util.BlLocaleMessage
+import com.briolink.lib.common.exception.IBlException
 import com.netflix.graphql.dgs.exceptions.DefaultDataFetcherExceptionHandler
 import com.netflix.graphql.dgs.exceptions.DgsEntityNotFoundException
 import com.netflix.graphql.types.errors.ErrorType
@@ -10,15 +9,14 @@ import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.DataFetcherExceptionHandlerResult
 import org.springframework.http.HttpStatus
-import org.springframework.web.reactive.function.server.RequestPredicates.path
 import javax.validation.ConstraintViolationException
 
-open class BaseDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataFetcherExceptionHandler {
+open class BlDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataFetcherExceptionHandler {
     init {
         lm = localeMessage
     }
 
-    private val defaultHandler = DefaultDataFetcherExceptionHandler()
+    protected open val defaultHandler = DefaultDataFetcherExceptionHandler()
 
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters): DataFetcherExceptionHandlerResult {
         val exception = handlerParameters.exception
@@ -33,12 +31,13 @@ open class BaseDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : Dat
                     .location(location)
                     .build()
 
-            is ExceptionInterface -> {
+            is IBlException -> {
                 val errorType: ErrorType = when (exception.httpsStatus) {
                     HttpStatus.NOT_FOUND -> ErrorType.NOT_FOUND
                     HttpStatus.FORBIDDEN -> ErrorType.PERMISSION_DENIED
                     HttpStatus.BAD_REQUEST -> ErrorType.BAD_REQUEST
                     HttpStatus.UNAUTHORIZED -> ErrorType.UNAUTHENTICATED
+                    HttpStatus.SERVICE_UNAVAILABLE -> ErrorType.UNAVAILABLE
                     else -> {
                         if (exception.httpsStatus.is4xxClientError) ErrorType.BAD_REQUEST
                         else ErrorType.INTERNAL
