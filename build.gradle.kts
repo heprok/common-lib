@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "com.briolink.lib"
-version = "0.0.36-SNAPSHOT"
+version = "0.0.40-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -22,22 +22,18 @@ repositories {
 
 dependencies {
     // Spring Boot
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    compileOnly("javax.servlet:javax.servlet-api:4.0.1")
+    implementation("org.springframework.boot:spring-boot-starter-webflux:${Versions.SPRING_BOOT_VERSION}")
+    implementation("org.springframework.boot:spring-boot-starter-validation:${Versions.SPRING_BOOT_VERSION}")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:${Versions.SPRING_BOOT_VERSION}")
+    compileOnly("javax.servlet:javax.servlet-api:${Versions.JAVA_SERVLET}")
     annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.security:spring-security-core:${Versions.SPRING_SECURITY}")
     implementation("org.springframework.security:spring-security-oauth2-jose:${Versions.SPRING_SECURITY}")
     implementation("org.springframework.security:spring-security-oauth2-resource-server:${Versions.SPRING_SECURITY}")
-    implementation("org.aspectj:aspectjrt:1.7.3")
+
     kapt("org.springframework.boot:spring-boot-autoconfigure-processor:${Versions.SPRING_BOOT_VERSION}")
     kapt("org.springframework.boot:spring-boot-configuration-processor:${Versions.SPRING_BOOT_VERSION}")
-
-    // FasterXML
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     // Hibernate Types 55
     api("com.vladmihalcea:hibernate-types-55:${Versions.HIBERNATE_TYPES_55}")
@@ -46,15 +42,12 @@ dependencies {
     implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars:${Versions.GRAPHQL_DGS}")
     implementation("com.netflix.graphql.dgs:graphql-error-types:${Versions.GRAPHQL_DGS}")
 
-    implementation("joda-time:joda-time:2.10.14")
+    implementation("joda-time:joda-time:${Versions.JODA_TIME}")
     kapt("jakarta.annotation:jakarta.annotation-api")
 
     // Kotlin
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib-jdk8"))
-
-    // kotlin-logging
-    implementation("io.github.microutils:kotlin-logging-jvm:2.0.11")
 }
 
 java {
@@ -71,8 +64,20 @@ publishing {
             from(components["java"])
         }
     }
-
     repositories {
+        maven {
+            name = "GitLab"
+            url = uri("https://gitlab.com/api/v4/projects/36319712/packages/maven")
+
+            authentication {
+                create<HttpHeaderAuthentication>("header")
+            }
+
+            credentials(HttpHeaderCredentials::class) {
+                name = "Deploy-Token"
+                value = System.getenv("GITLAB_DEPLOY_TOKEN")
+            }
+        }
         mavenLocal()
     }
 }
@@ -81,21 +86,5 @@ tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "11"
-    }
-}
-
-tasks.withType<GenerateMavenPom>().all {
-    doLast {
-        val file = File("$buildDir/publications/maven/pom-default.xml")
-        var text = file.readText()
-        val regex =
-            "(?s)(<dependencyManagement>.+?<dependencies>)(.+?)(</dependencies>.+?</dependencyManagement>)".toRegex()
-        val matcher = regex.find(text)
-        if (matcher != null) {
-            text = regex.replaceFirst(text, "")
-            val firstDeps = matcher.groups[2]!!.value
-            text = regex.replaceFirst(text, "$1$2$firstDeps$3")
-        }
-        file.writeText(text)
     }
 }

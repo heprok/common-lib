@@ -2,6 +2,7 @@ package com.briolink.lib.common.jpa
 
 import com.briolink.lib.common.jpa.func.ArrayAggFunc
 import com.briolink.lib.common.jpa.func.ConcatWsFunc
+import com.briolink.lib.common.jpa.func.DateRangeFunc
 import com.briolink.lib.common.jpa.func.JsonbGetFunc
 import com.briolink.lib.common.jpa.func.JsonbSetsFunc
 import org.hibernate.QueryException
@@ -26,6 +27,9 @@ open class Functions : MetadataBuilderContributor {
             "fts_partial_col",
             SQLFunctionTemplate(BooleanType.INSTANCE, "?1 @@ to_tsquery(quote_literal(quote_literal(?2)) || ':*')"),
         )
+
+        metadataBuilder.applySqlFunction("tsv", SQLFunctionTemplate(StringType.INSTANCE, "to_tsvector('simple', ?1)"))
+
         metadataBuilder.applySqlFunction(
             "orderby_equal",
             SQLFunctionTemplate(BooleanType.INSTANCE, "?1 = ?2"),
@@ -53,15 +57,20 @@ open class Functions : MetadataBuilderContributor {
             SQLFunctionTemplate(BooleanType.INSTANCE, "?1 @> array[?2]"),
         )
 
-        metadataBuilder.applySqlFunction("jsonb_sets", JsonbSetsFunc())
-        metadataBuilder.applySqlFunction("jsonb_get", JsonbGetFunc())
-        metadataBuilder.applySqlFunction("array_agg", ArrayAggFunc())
-        metadataBuilder.applySqlFunction("concat_ws", ConcatWsFunc())
+        metadataBuilder.applySqlFunction(
+            "array_contains_common_element",
+            SQLFunctionTemplate(BooleanType.INSTANCE, "?1 && array[?2]"),
+        )
 
         metadataBuilder.applySqlFunction(
             "int4range_contains",
             SQLFunctionTemplate(BooleanType.INSTANCE, "?1 <@ int4range(?2, ?3)"),
         )
-        metadataBuilder.applySqlFunction("tsv", SQLFunctionTemplate(StringType.INSTANCE, "to_tsvector('simple', ?1)"))
+
+        metadataBuilder.applySqlFunction("daterange_cross", DateRangeFunc())
+        metadataBuilder.applySqlFunction("jsonb_sets", JsonbSetsFunc())
+        metadataBuilder.applySqlFunction("jsonb_get", JsonbGetFunc())
+        metadataBuilder.applySqlFunction("array_agg", ArrayAggFunc())
+        metadataBuilder.applySqlFunction("concat_ws", ConcatWsFunc())
     }
 }
