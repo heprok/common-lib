@@ -24,6 +24,7 @@ dependencies {
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     compileOnly("javax.servlet:javax.servlet-api:4.0.1")
     annotationProcessor("org.springframework.boot:spring-boot-autoconfigure-processor")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -37,6 +38,9 @@ dependencies {
     // FasterXML
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    // Hibernate Types 55
+    api("com.vladmihalcea:hibernate-types-55:${Versions.HIBERNATE_TYPES_55}")
 
     // Netflix DGS
     implementation("com.netflix.graphql.dgs:graphql-dgs-extended-scalars:${Versions.GRAPHQL_DGS}")
