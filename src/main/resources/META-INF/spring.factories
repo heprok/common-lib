@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.briolink.lib.common.configuration.BlCommonLibAutoConfiguration
+com.briolink.lib.common.configuration.BlCommonLibAutoConfiguration,\
+  com.briolink.lib.common.configuration.BlS3UtilAutoConfiguration

@@ -11,8 +11,11 @@ open class BlLocaleMessage(protected open val messageSource: MessageSource) {
         key
     }
 
-    open fun getMessage(key: String, args: Array<Any>, locale: Locale? = null): String = try {
-        messageSource.getMessage(key, args, LocaleContextHolder.getLocale())
+    open fun getMessage(key: String, args: Array<String>?, locale: Locale? = null): String = try {
+        if (args.isNullOrEmpty())
+            getMessage(key, locale)
+        else
+            messageSource.getMessage(key, args, LocaleContextHolder.getLocale())
     } catch (e: Exception) {
         key
     }

@@ -1,14 +1,21 @@
 package com.briolink.lib.common
 
-import com.briolink.lib.common.exception.IBlException
-import com.netflix.graphql.dgs.exceptions.DefaultDataFetcherExceptionHandler
+import com.briolink.lib.common.exception.base.IBlException
+import com.netflix.graphql.dgs.exceptions.DgsBadRequestException
 import com.netflix.graphql.dgs.exceptions.DgsEntityNotFoundException
 import com.netflix.graphql.types.errors.ErrorType
 import com.netflix.graphql.types.errors.TypedGraphQLError
+import com.netflix.graphql.types.errors.TypedGraphQLError.Builder
+import graphql.GraphQLError
 import graphql.execution.DataFetcherExceptionHandler
 import graphql.execution.DataFetcherExceptionHandlerParameters
 import graphql.execution.DataFetcherExceptionHandlerResult
+import graphql.execution.ResultPath
+import graphql.language.SourceLocation
+import mu.KLogging
 import org.springframework.http.HttpStatus
+import java.lang.reflect.InvocationTargetException
+import java.util.concurrent.CompletableFuture
 import javax.validation.ConstraintViolationException
 
 open class BlDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataFetcherExceptionHandler {
@@ -16,21 +23,16 @@ open class BlDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataF
         lm = localeMessage
     }
 
-    protected open val defaultHandler = DefaultDataFetcherExceptionHandler()
-
+    @Deprecated("Deprecated in Java")
     override fun onException(handlerParameters: DataFetcherExceptionHandlerParameters): DataFetcherExceptionHandlerResult {
-        val exception = handlerParameters.exception
-        val path = handlerParameters.path
+        var exception = handlerParameters.exception
+        if (exception is InvocationTargetException) exception = exception.targetException
         val location = handlerParameters.sourceLocation
+        val path = handlerParameters.path
 
-        val error: TypedGraphQLError = when (exception) {
-            is DgsEntityNotFoundException ->
-                TypedGraphQLError.newBuilder().errorType(ErrorType.NOT_FOUND)
-                    .message(exception.message)
-                    .path(path)
-                    .location(location)
-                    .build()
-
+        val graphqlError: GraphQLError = when (exception) {
+            is DgsEntityNotFoundException -> getGraphqlError(TypedGraphQLError.newNotFoundBuilder(), location, path, exception)
+            is DgsBadRequestException -> getGraphqlError(TypedGraphQLError.newBadRequestBuilder(), location, path, exception)
             is IBlException -> {
                 val errorType: ErrorType = when (exception.httpsStatus) {
                     HttpStatus.NOT_FOUND -> ErrorType.NOT_FOUND
@@ -44,24 +46,50 @@ open class BlDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataF
                     }
                 }
 
-                val message = lm.getMessage(exception.code).let {
+                val message = lm.getMessage(exception.code, exception.arguments).let {
                     if (!exception.message.isNullOrBlank() && it == exception.code) lm.getMessage(exception.message!!) else it
                 }
 
-                TypedGraphQLError.newBuilder().errorType(errorType)
-                    .message(message)
-                    .path(path)
-                    .location(location)
-                    .build()
+                getGraphqlError(TypedGraphQLError.newBuilder().errorType(errorType), location, path, message)
             }
-            else ->
-                return defaultHandler.handleException(handlerParameters).get()
+            else -> {
+                logger.error("Exception while executing data fetcher for ${handlerParameters.path}: ${exception.message}", exception)
+                getGraphqlError(TypedGraphQLError.newInternalErrorBuilder(), location, path, exception)
+            }
         }
 
-        return DataFetcherExceptionHandlerResult.newResult().error(error).build()
+        return DataFetcherExceptionHandlerResult.newResult().error(graphqlError).build()
     }
 
+    protected open fun getGraphqlError(
+        builder: Builder,
+        sourceLocation: SourceLocation,
+        path: ResultPath,
+        exception: Throwable
+    ): GraphQLError {
+        return builder
+            .location(sourceLocation)
+            .message("%s", exception.message)
+            .path(path).build()
+    }
+    protected open fun getGraphqlError(
+        builder: Builder,
+        sourceLocation: SourceLocation,
+        path: ResultPath,
+        message: String
+    ): GraphQLError {
+        return builder
+            .location(sourceLocation)
+            .message("%s", message)
+            .path(path).build()
+    }
+
+    override fun handleException(
+        handlerParameters: DataFetcherExceptionHandlerParameters
+    ): CompletableFuture<DataFetcherExceptionHandlerResult> = CompletableFuture.completedFuture(onException(handlerParameters))
+
     companion object {
+        val logger = KLogging().logger
         lateinit var lm: BlLocaleMessage
 
         fun mapUserErrors(cve: ConstraintViolationException): List<Error> {
