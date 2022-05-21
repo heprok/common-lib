@@ -6,6 +6,12 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import java.util.UUID
 
 object BlSecurityUtil {
+    /**
+     * Get the current user's id.
+     * @throws ClassCastException if the current user is not authenticated.
+     * @return the current user's id
+     */
+    @get:Throws(ClassCastException::class)
     val currentUserId: UUID
         get() {
             val authentication: JwtAuthenticationToken =
