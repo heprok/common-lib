@@ -1,11 +1,11 @@
-package com.briolink.lib.common.util
+package com.briolink.lib.common.utils
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import java.util.UUID
 
-object BlSecurityUtil {
+object BlSecurityUtils {
     /**
      * Get the current user's id.
      * @throws ClassCastException if the current user is not authenticated.

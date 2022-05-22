@@ -1,10 +1,12 @@
-package com.briolink.lib.common.util
+package com.briolink.lib.common.utils
 
 import com.briolink.lib.common.exception.FileTypeException
 import mu.KLogging
 import org.springframework.web.multipart.MultipartFile
+import software.amazon.awssdk.core.exception.SdkException
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.GetUrlRequest
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
@@ -15,7 +17,7 @@ import java.nio.file.Path
 import java.util.UUID
 import kotlin.io.path.pathString
 
-open class BlS3Util(
+open class BlS3Utils(
     private val bucketName: String,
     private val s3Client: S3Client
 ) {
@@ -76,7 +78,7 @@ open class BlS3Util(
     fun uploadImage(path: String, url: URL): URL = uploadImage(path, url.openConnection().inputStream.readAllBytes())
 
     fun uploadImage(path: String, bytesArray: ByteArray): URL {
-        val format = ImageUtil.getFormat(bytesArray)
+        val format = ImageUtils.getFormat(bytesArray)
 
         return if (ALLOWED_IMAGE_TYPES.containsKey(format)) {
             var type = ALLOWED_IMAGE_TYPES[format]
@@ -84,7 +86,7 @@ open class BlS3Util(
 
             if (format == "gif" || format == "svg") {
                 type = ALLOWED_IMAGE_TYPES["png"]
-                bytes = ImageUtil.toPng(bytes, if (format == "svg") 512 else null)
+                bytes = ImageUtils.toPng(bytes, if (format == "svg") 512 else null)
             }
 
             uploadFile(bytes, "$path/${genObjectKey()}.${type!!.first}", type.second)
@@ -121,4 +123,13 @@ open class BlS3Util(
 
         return URL("https://$bucketName.s3.amazonaws.com/$path")
     }
+
+    fun deleteFile(key: String) =
+        try {
+            s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(key).build())
+        } catch (clientException: SdkException) {
+            logger.error { "SdkException: ${clientException.message}" }
+        }
+
+    fun getUrl(key: String) = s3Client.utilities().getUrl(GetUrlRequest.builder().bucket(bucketName).key(key).build())
 }

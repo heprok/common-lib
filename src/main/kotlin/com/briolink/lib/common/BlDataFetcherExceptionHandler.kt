@@ -1,6 +1,7 @@
 package com.briolink.lib.common
 
 import com.briolink.lib.common.exception.base.IBlException
+import com.briolink.lib.common.validation.StringInList
 import com.netflix.graphql.dgs.exceptions.DgsBadRequestException
 import com.netflix.graphql.dgs.exceptions.DgsEntityNotFoundException
 import com.netflix.graphql.types.errors.ErrorType
@@ -33,6 +34,8 @@ open class BlDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataF
         val graphqlError: GraphQLError = when (exception) {
             is DgsEntityNotFoundException -> getGraphqlError(TypedGraphQLError.newNotFoundBuilder(), location, path, exception)
             is DgsBadRequestException -> getGraphqlError(TypedGraphQLError.newBadRequestBuilder(), location, path, exception)
+            is org.springframework.security.access.AccessDeniedException ->
+                getGraphqlError(TypedGraphQLError.newPermissionDeniedBuilder(), location, path, exception)
             is IBlException -> {
                 val errorType: ErrorType = when (exception.httpsStatus) {
                     HttpStatus.NOT_FOUND -> ErrorType.NOT_FOUND
@@ -72,6 +75,7 @@ open class BlDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataF
             .message("%s", exception.message)
             .path(path).build()
     }
+
     protected open fun getGraphqlError(
         builder: Builder,
         sourceLocation: SourceLocation,
@@ -96,7 +100,13 @@ open class BlDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataF
             val errors: MutableList<Error> = mutableListOf()
 
             for (violation in cve.constraintViolations) {
-                errors.add(Error(lm.getMessage(violation.message)))
+                if (violation.constraintDescriptor.annotation.annotationClass == StringInList::class) {
+                    val annotation = violation.constraintDescriptor.annotation as StringInList
+                    val message = lm.getMessage(annotation.message, annotation.allowedValues.joinToString())
+
+                    errors.add(Error(message))
+                } else
+                    errors.add(Error(lm.getMessage(violation.message)))
             }
 
             return errors

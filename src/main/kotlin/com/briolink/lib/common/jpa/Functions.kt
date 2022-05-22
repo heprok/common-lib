@@ -11,6 +11,7 @@ import org.hibernate.QueryException
 import org.hibernate.boot.MetadataBuilder
 import org.hibernate.boot.spi.MetadataBuilderContributor
 import org.hibernate.dialect.function.SQLFunctionTemplate
+import org.hibernate.dialect.function.StandardSQLFunction
 import org.hibernate.engine.spi.Mapping
 import org.hibernate.type.BooleanType
 import org.hibernate.type.FloatType
@@ -100,5 +101,7 @@ open class Functions : MetadataBuilderContributor {
         metadataBuilder.applySqlFunction("concat_ws", ConcatWsFunc())
         metadataBuilder.applySqlFunction("lquery_arr", LQueryArr())
         metadataBuilder.applySqlFunction("arr_contains_any", ArrContainsAny())
+        metadataBuilder.applySqlFunction("lower", StandardSQLFunction("lower"))
+        metadataBuilder.applySqlFunction("upper", StandardSQLFunction("upper"))
     }
 }

@@ -1,4 +1,4 @@
-package com.briolink.lib.common.util
+package com.briolink.lib.common.utils
 
 import com.ibm.icu.text.Transliterator
 import java.net.URL
@@ -8,7 +8,7 @@ private val toAnyLatin =
     Transliterator.getInstance("Cyrillic-Latin; Any-Latin; Latin-ASCII; Any-Lower")
 private val allowedCharPool: List<Char> = ('a'..'z') + ('0'..'9')
 
-object StringUtil {
+object StringUtils {
     fun slugify(str: String, withRandom: Boolean = false, length: Int = 50): String =
         toAnyLatin
             .transliterate(str.trim())
@@ -31,4 +31,29 @@ object StringUtil {
     }
 
     fun prepareUrl(url: URL?): URL? = prepareUrl(url?.toString())
+}
+
+fun <T> List<T>.joinToStringWithLastSeperator(
+    separator: String,
+    lastSeparator: String
+): String {
+    @Suppress("MagicNumber")
+    val assumedAverageLength = 4
+    val sb = StringBuilder(size * assumedAverageLength)
+
+    if (size > 0) {
+        sb.append(this[0])
+    }
+
+    for (i in 1 until size - 1) {
+        sb.append(separator)
+        sb.append(this[i])
+    }
+
+    if (size > 1) {
+        sb.append(lastSeparator)
+        sb.append(this[size - 1])
+    }
+
+    return sb.toString()
 }

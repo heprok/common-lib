@@ -1,5 +1,0 @@
-spring:
-  messages:
-    basename: i18n2/messages1
-    encoding: UTF-8
-    fallbackToSystemLocale: false

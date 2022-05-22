@@ -1,4 +1,4 @@
-package com.briolink.lib.common.util
+package com.briolink.lib.common.utils
 
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.format.FormatDetector
@@ -6,7 +6,7 @@ import com.sksamuel.scrimage.nio.PngWriter
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 
-object ImageUtil {
+object ImageUtils {
     val PNG_WRITER = PngWriter().withMinCompression()
 
     fun getFormat(bytes: ByteArray): String? {
