@@ -12,5 +12,9 @@ interface IBlException {
      * List arguments in i18n code
      */
     val arguments: Array<String>?
+
+    /**
+     * Http status
+     */
     val httpsStatus: HttpStatus
 }
