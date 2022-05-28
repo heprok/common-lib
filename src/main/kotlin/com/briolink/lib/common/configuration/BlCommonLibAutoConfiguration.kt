@@ -43,6 +43,9 @@ class BlCommonLibAutoConfiguration {
     @Bean
     fun blDataFetcherExceptionHandler(blLocaleMessage: BlLocaleMessage) = BlDataFetcherExceptionHandler(blLocaleMessage)
 
+    // @Bean
+    // fun blRestGlobalExceptionHandler(blLocaleMessage: BlLocaleMessage) = BlRestGlobalExceptionHandler(blLocaleMessage)
+
     @Bean
     fun blServletUtils(request: HttpServletRequest) = BlServletUtils(request)
 }

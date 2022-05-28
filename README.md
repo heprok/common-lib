@@ -164,6 +164,25 @@ class CustomDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) :
     BlDataFetcherExceptionHandler(localeMessage) {}
 ```
 
+### Rest error handler
+
+[BlRestGlobalExceptionHandler](/src/main/kotlin/com/briolink/lib/common/BlRestGlobalExceptionHandler.kt)
+— Rest errors handler. Enabled by default unless @ControllerAdvice annotation is added. As GraphQL error handler
+connected BlLocaleMessage.
+
+To override a class, yot need to inherit from the class (BlRestGlobalExceptionHandler) and add the @ControllerAdvice
+annotation
+
+```kotlin
+@ControllerAdvice
+class CustomRestGlobalExceptionHandler(localeMessage: BlLocaleMessage) : BlRestGlobalExceptionHandler(localeMessage) {
+    @ExceptionHandler(value = [BaseExistException::class, EntityExistException::class])
+    override fun existsException(ex: IBlException): ResponseEntity<BlErrorResponse> {
+        return getResponseEntityWithTranslateMessage(ex)
+    }
+}
+```
+
 ### Beans (components)
 
 You access the beans in the project.
