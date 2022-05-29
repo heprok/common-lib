@@ -1,3 +1,8 @@
 package com.briolink.lib.common.type.basic
 
-data class BlIntRange(val start: Int? = null, val end: Int? = null)
+import com.fasterxml.jackson.annotation.JsonProperty
+
+data class BlIntRange(
+    @JsonProperty val start: Int? = null,
+    @JsonProperty val end: Int? = null
+)

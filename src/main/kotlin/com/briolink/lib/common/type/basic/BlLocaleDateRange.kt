@@ -1,14 +1,15 @@
 package com.briolink.lib.common.type.basic
 
 import com.briolink.lib.common.type.interfaces.IBaseLocalDateRange
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.Instant
 import java.time.LocalDate
 import java.time.Year
 import java.time.ZoneOffset
 
 data class BlLocaleDateRange(
-    override val startDate: LocalDate? = null,
-    override val endDate: LocalDate? = null
+    @JsonProperty override val startDate: LocalDate? = null,
+    @JsonProperty override val endDate: LocalDate? = null
 ) : IBaseLocalDateRange {
     val startYear: Year?
         get() = startDate?.let { Year.of(it.year) }
