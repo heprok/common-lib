@@ -92,4 +92,15 @@ open class BlRestGlobalExceptionHandler(private val lm: BlLocaleMessage) {
             HttpStatus.NOT_ACCEPTABLE
         )
     }
+
+    @ExceptionHandler(value = [IllegalArgumentException::class])
+    open fun illegalArgumentException(ex: IllegalArgumentException): ResponseEntity<BlErrorResponse> {
+        return ResponseEntity(
+            BlErrorResponse(
+                message = ex.message?.let { lm.getMessage(it) },
+                httpsStatus = HttpStatus.NOT_ACCEPTABLE
+            ),
+            HttpStatus.NOT_ACCEPTABLE
+        )
+    }
 }

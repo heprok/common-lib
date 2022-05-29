@@ -36,6 +36,7 @@ open class BlDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataF
             is DgsBadRequestException -> getGraphqlError(TypedGraphQLError.newBadRequestBuilder(), location, path, exception)
             is org.springframework.security.access.AccessDeniedException ->
                 getGraphqlError(TypedGraphQLError.newPermissionDeniedBuilder(), location, path, exception)
+            is IllegalArgumentException -> getGraphqlError(TypedGraphQLError.newInternalErrorBuilder(), location, path, exception)
             is IBlException -> {
                 val errorType: ErrorType = when (exception.httpsStatus) {
                     HttpStatus.NOT_FOUND -> ErrorType.NOT_FOUND
@@ -72,7 +73,7 @@ open class BlDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataF
     ): GraphQLError {
         return builder
             .location(sourceLocation)
-            .message("%s", exception.message)
+            .message("%s", exception.message?.let { lm.getMessage(it) })
             .path(path).build()
     }
 
@@ -84,7 +85,7 @@ open class BlDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataF
     ): GraphQLError {
         return builder
             .location(sourceLocation)
-            .message("%s", message)
+            .message("%s", lm.getMessage(message))
             .path(path).build()
     }
 
