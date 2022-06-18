@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
 @ReportAsSingleViolation
 @Constraint(validatedBy = [])
 @Pattern(
-    regexp = "^http(s)?://[\\w.-]+(?:\\.[\\w.-]+)+[\\w]/?$",
+    regexp = ValidWebsite.pattern,
     flags = [Pattern.Flag.CASE_INSENSITIVE]
 )
 @Retention(AnnotationRetention.RUNTIME)
@@ -21,4 +21,8 @@ annotation class ValidWebsite(
     val message: String = "validation.website.invalid", // "website.invalid",
     val groups: Array<KClass<Any>> = [],
     val payload: Array<KClass<Payload>> = [],
-)
+) {
+    companion object {
+        const val pattern = "^http(s)?://[\\w.-]+(?:\\.[\\w.-]+)+[\\w]/?$"
+    }
+}

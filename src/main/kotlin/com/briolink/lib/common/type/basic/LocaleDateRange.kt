@@ -7,7 +7,7 @@ import java.time.LocalDate
 import java.time.Year
 import java.time.ZoneOffset
 
-data class BlLocaleDateRange(
+data class LocaleDateRange(
     @JsonProperty override val startDate: LocalDate? = null,
     @JsonProperty override val endDate: LocalDate? = null
 ) : IBaseLocalDateRange {

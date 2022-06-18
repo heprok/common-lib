@@ -7,10 +7,12 @@ import java.time.LocalDate
 import java.time.Year
 import java.time.ZoneId
 
-data class BlYearRange(
+data class YearRange(
     @JsonProperty override val startYear: Year? = null,
     @JsonProperty override val endYear: Year? = null
 ) : IBaseYearRange {
+    constructor(startYear: Int? = null, endYear: Int? = null) : this(startYear?.let { Year.of(it) }, endYear?.let { Year.of(it) })
+
     val startDate: LocalDate?
         get() = startYear?.let { LocalDate.of(it.value, 1, 1) }
 

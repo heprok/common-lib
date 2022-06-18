@@ -248,7 +248,7 @@ tasks.withType<com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask> {
 
 ### Utils
 
-[BlSecurityUtils](/src/main/kotlin/com/briolink/lib/common/utils/BlSecurityUtils.kt)
+[SecurityUtils](/src/main/kotlin/com/briolink/lib/common/utils/SecurityUtils.kt)
 — To work with authorization, get the current user Id from header authorization or check for anonymous tokens
 
 [ImageUtils](/src/main/kotlin/com/briolink/lib/common/utils/ImageUtils.kt)
@@ -265,23 +265,35 @@ tasks.withType<com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask> {
 
 ### Other type
 
-[BlFloatRange](/src/main/kotlin/com/briolink/lib/common/type/basic/BlFloatRange.kt)
+[FloatRange](/src/main/kotlin/com/briolink/lib/common/type/basic/FloatRange.kt)
 — Class range float
 
-[BlIntRange](/src/main/kotlin/com/briolink/lib/common/type/basic/BlIntRange.kt)
+[IntRange](/src/main/kotlin/com/briolink/lib/common/type/basic/IntRange.kt)
 — Class range int
 
-[BlYearRange](/src/main/kotlin/com/briolink/lib/common/type/basic/BlYearRange.kt)
+[YearRange](/src/main/kotlin/com/briolink/lib/common/type/basic/YearRange.kt)
 — Class range year
 
-[BlLocaleDateRange](/src/main/kotlin/com/briolink/lib/common/type/basic/BlLocaleDateRange.kt)
+[LocaleDateRange](/src/main/kotlin/com/briolink/lib/common/type/basic/LocaleDateRange.kt)
 — Class range locale date
 
-[BlSort](/src/main/kotlin/com/briolink/lib/common/type/basic/BlSort.kt)
+[Sort](/src/main/kotlin/com/briolink/lib/common/type/basic/Sort.kt)
 — Class sort
 
-[BlSuggestion](/src/main/kotlin/com/briolink/lib/common/type/basic/BlSuggestion.kt)
+[Suggestion](/src/main/kotlin/com/briolink/lib/common/type/basic/Suggestion.kt)
 — Class suggestion
+
+[Suggestion](/src/main/kotlin/com/briolink/lib/common/type/basic/Money.kt)
+— Class Money
+
+[Suggestion](/src/main/kotlin/com/briolink/lib/common/type/basic/Money.kt)
+— Class Range Money
+
+[Suggestion](/src/main/kotlin/com/briolink/lib/common/type/basic/ValueWithCount.kt)
+— Class Value with count
+
+[Suggestion](/src/main/kotlin/com/briolink/lib/common/type/basic/UpdatableProperty.kt)
+— Class UpdatableProperty
 
 ### JPA
 

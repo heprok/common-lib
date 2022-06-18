@@ -13,7 +13,7 @@ import com.briolink.lib.common.exception.base.BaseNotFoundException
 import com.briolink.lib.common.exception.base.BaseUnavailableException
 import com.briolink.lib.common.exception.base.BaseValidationException
 import com.briolink.lib.common.exception.base.IBlException
-import com.briolink.lib.common.type.basic.BlErrorResponse
+import com.briolink.lib.common.type.basic.ErrorResponse
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
@@ -31,61 +31,61 @@ import javax.validation.ConstraintViolationException
 @RequestMapping(produces = ["application/json"])
 open class BlRestGlobalExceptionHandler(private val lm: BlLocaleMessage) {
 
-    protected open fun getResponseEntityWithTranslateMessage(ex: IBlException): ResponseEntity<BlErrorResponse> {
+    protected open fun getResponseEntityWithTranslateMessage(ex: IBlException): ResponseEntity<ErrorResponse> {
         val message = lm.getMessage(ex.code, ex.arguments)
-        return ResponseEntity<BlErrorResponse>(BlErrorResponse(message, ex.httpsStatus), ex.httpsStatus)
+        return ResponseEntity<ErrorResponse>(ErrorResponse(message, ex.httpsStatus), ex.httpsStatus)
     }
 
     @ExceptionHandler(value = [BaseExistException::class, EntityExistException::class])
-    open fun existsException(ex: IBlException): ResponseEntity<BlErrorResponse> {
+    open fun existsException(ex: IBlException): ResponseEntity<ErrorResponse> {
         return getResponseEntityWithTranslateMessage(ex)
     }
 
     @ExceptionHandler(value = [BaseNotFoundException::class, EntityNotFoundException::class])
-    open fun notFoundException(ex: IBlException): ResponseEntity<BlErrorResponse> {
+    open fun notFoundException(ex: IBlException): ResponseEntity<ErrorResponse> {
         return getResponseEntityWithTranslateMessage(ex)
     }
 
     @ExceptionHandler(value = [BaseValidationException::class, ValidationException::class])
-    open fun validationException(ex: IBlException): ResponseEntity<BlErrorResponse> {
+    open fun validationException(ex: IBlException): ResponseEntity<ErrorResponse> {
         return getResponseEntityWithTranslateMessage(ex)
     }
 
     @ExceptionHandler(value = [BaseBadRequestException::class, BadRequestException::class])
-    open fun badRequestException(ex: IBlException): ResponseEntity<BlErrorResponse> {
+    open fun badRequestException(ex: IBlException): ResponseEntity<ErrorResponse> {
         return getResponseEntityWithTranslateMessage(ex)
     }
 
     @ExceptionHandler(value = [BaseAccessDeniedException::class, AccessDeniedException::class])
-    open fun accessDeniedException(ex: IBlException): ResponseEntity<BlErrorResponse> {
+    open fun accessDeniedException(ex: IBlException): ResponseEntity<ErrorResponse> {
         return getResponseEntityWithTranslateMessage(ex)
     }
 
     @ExceptionHandler(value = [org.springframework.security.access.AccessDeniedException::class])
-    open fun accessDeniedException(ex: org.springframework.security.access.AccessDeniedException): ResponseEntity<BlErrorResponse> {
+    open fun accessDeniedException(ex: org.springframework.security.access.AccessDeniedException): ResponseEntity<ErrorResponse> {
         return getResponseEntityWithTranslateMessage(
             (ex.message?.let { AccessDeniedException(it) } ?: AccessDeniedException()) as IBlException
         )
     }
 
     @ExceptionHandler(value = [BaseUnavailableException::class, UnavailableException::class])
-    open fun unavailableException(ex: IBlException): ResponseEntity<BlErrorResponse> {
+    open fun unavailableException(ex: IBlException): ResponseEntity<ErrorResponse> {
         return getResponseEntityWithTranslateMessage(ex)
     }
 
     @ExceptionHandler(value = [BindException::class])
-    open fun validationBindException(ex: BindException): ResponseEntity<BlErrorResponse> {
+    open fun validationBindException(ex: BindException): ResponseEntity<ErrorResponse> {
 
         val msg = ex.fieldErrors.joinToString("\n") {
             it.field + ": " + it.defaultMessage?.let { key -> lm.getMessage(key) }
         }
-        return ResponseEntity(BlErrorResponse(message = msg, httpsStatus = HttpStatus.NOT_ACCEPTABLE), HttpStatus.NOT_ACCEPTABLE)
+        return ResponseEntity(ErrorResponse(message = msg, httpsStatus = HttpStatus.NOT_ACCEPTABLE), HttpStatus.NOT_ACCEPTABLE)
     }
 
     @ExceptionHandler(value = [ConstraintViolationException::class])
-    open fun validationException(ex: ConstraintViolationException): ResponseEntity<BlErrorResponse> {
+    open fun validationException(ex: ConstraintViolationException): ResponseEntity<ErrorResponse> {
         return ResponseEntity(
-            BlErrorResponse(
+            ErrorResponse(
                 message = ex.message?.let { lm.getMessage(it) },
                 httpsStatus = HttpStatus.NOT_ACCEPTABLE
             ),
@@ -94,9 +94,9 @@ open class BlRestGlobalExceptionHandler(private val lm: BlLocaleMessage) {
     }
 
     @ExceptionHandler(value = [IllegalArgumentException::class])
-    open fun illegalArgumentException(ex: IllegalArgumentException): ResponseEntity<BlErrorResponse> {
+    open fun illegalArgumentException(ex: IllegalArgumentException): ResponseEntity<ErrorResponse> {
         return ResponseEntity(
-            BlErrorResponse(
+            ErrorResponse(
                 message = ex.message?.let { lm.getMessage(it) },
                 httpsStatus = HttpStatus.NOT_ACCEPTABLE
             ),

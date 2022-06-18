@@ -1,11 +1,10 @@
 package com.briolink.lib.common.type.basic
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.springframework.http.HttpStatus
 
-data class BlErrorResponse(
+data class ValueWithCount<V, C : Number?>(
     @JsonProperty
-    val message: String? = null,
+    val value: V,
     @JsonProperty
-    val httpsStatus: HttpStatus
+    val count: C
 )
