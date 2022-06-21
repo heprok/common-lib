@@ -31,6 +31,8 @@ open class BlDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataF
         val location = handlerParameters.sourceLocation
         val path = handlerParameters.path
 
+        logger.error("Exception while executing data fetcher for ${handlerParameters.path}: ${exception.message}", exception)
+
         val graphqlError: GraphQLError = when (exception) {
             is DgsEntityNotFoundException -> getGraphqlError(TypedGraphQLError.newNotFoundBuilder(), location, path, exception)
             is DgsBadRequestException -> getGraphqlError(TypedGraphQLError.newBadRequestBuilder(), location, path, exception)

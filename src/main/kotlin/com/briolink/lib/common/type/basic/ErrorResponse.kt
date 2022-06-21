@@ -7,5 +7,9 @@ data class ErrorResponse(
     @JsonProperty
     val message: String? = null,
     @JsonProperty
-    val httpsStatus: HttpStatus
-)
+    var _httpStatus: Int,
+
+) {
+    val httpStatus: HttpStatus
+        get() = HttpStatus.valueOf(_httpStatus)
+}
