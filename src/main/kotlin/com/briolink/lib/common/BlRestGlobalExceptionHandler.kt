@@ -14,6 +14,7 @@ import com.briolink.lib.common.exception.base.BaseUnavailableException
 import com.briolink.lib.common.exception.base.BaseValidationException
 import com.briolink.lib.common.exception.base.IBlException
 import com.briolink.lib.common.type.basic.ErrorResponse
+import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import mu.KLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.core.Ordered
@@ -86,6 +87,16 @@ open class BlRestGlobalExceptionHandler(private val lm: BlLocaleMessage) {
             it.field + ": " + it.defaultMessage?.let { key -> lm.getMessage(key) }
         }
         return ResponseEntity(ErrorResponse(message = msg, _httpStatus = HttpStatus.NOT_ACCEPTABLE.value()), HttpStatus.NOT_ACCEPTABLE)
+    }
+
+    @ExceptionHandler(value = [InvalidFormatException::class])
+    open fun validationInvalidFormatException(ex: InvalidFormatException): ResponseEntity<ErrorResponse> {
+        logger.error("Error: ${ex.message}", ex)
+
+        return ResponseEntity(
+            ErrorResponse(message = ex.message, _httpStatus = HttpStatus.NOT_ACCEPTABLE.value()),
+            HttpStatus.NOT_ACCEPTABLE
+        )
     }
 
     @ExceptionHandler(value = [ConstraintViolationException::class])
