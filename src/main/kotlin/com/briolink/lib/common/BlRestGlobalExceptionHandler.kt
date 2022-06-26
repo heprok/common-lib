@@ -22,6 +22,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.BindException
+import org.springframework.web.HttpMediaTypeNotSupportedException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RequestMapping
@@ -65,6 +66,17 @@ open class BlRestGlobalExceptionHandler(private val lm: BlLocaleMessage) {
     @ExceptionHandler(value = [BaseAccessDeniedException::class, AccessDeniedException::class])
     open fun accessDeniedException(ex: IBlException): ResponseEntity<ErrorResponse> {
         return getResponseEntityWithTranslateMessage(ex)
+    }
+
+    @ExceptionHandler(value = [HttpMediaTypeNotSupportedException::class])
+    open fun mediaTypeNotSupportedException(ex: HttpMediaTypeNotSupportedException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity<ErrorResponse>(
+            ErrorResponse(
+                lm.getMessage("error.media.type.not.supported"),
+                HttpStatus.UNSUPPORTED_MEDIA_TYPE.value()
+            ),
+            HttpStatus.UNSUPPORTED_MEDIA_TYPE
+        )
     }
 
     @ExceptionHandler(value = [org.springframework.security.access.AccessDeniedException::class])

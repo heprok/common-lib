@@ -15,6 +15,7 @@ import graphql.execution.ResultPath
 import graphql.language.SourceLocation
 import mu.KLogging
 import org.springframework.http.HttpStatus
+import org.springframework.web.HttpMediaTypeNotSupportedException
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.CompletableFuture
 import javax.validation.ConstraintViolationException
@@ -34,6 +35,7 @@ open class BlDataFetcherExceptionHandler(localeMessage: BlLocaleMessage) : DataF
         logger.error("Exception while executing data fetcher for ${handlerParameters.path}: ${exception.message}", exception)
 
         val graphqlError: GraphQLError = when (exception) {
+            is HttpMediaTypeNotSupportedException -> getGraphqlError(TypedGraphQLError.newBadRequestBuilder(), location, path, exception)
             is DgsEntityNotFoundException -> getGraphqlError(TypedGraphQLError.newNotFoundBuilder(), location, path, exception)
             is DgsBadRequestException -> getGraphqlError(TypedGraphQLError.newBadRequestBuilder(), location, path, exception)
             is org.springframework.security.access.AccessDeniedException ->
